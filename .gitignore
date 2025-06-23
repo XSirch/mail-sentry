@@ -1,0 +1,14 @@
+# Arquivos de ambiente e segredos
+.env
+.env.*
+api/.env
+backend/.env
+backend/credentials.json
+
+# Diretórios de IDEs
+# Configurações específicas do ambiente de desenvolvimento local.
+.vscode/
+.idea/
+
+# Diretório de ambiente virtual Python
+venv/
