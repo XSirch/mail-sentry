@@ -2,7 +2,7 @@ FROM python:3.12.11-alpine3.22
 
 
 # Instalar dependências do sistema, incluindo ferramentas para compilar extensões Rust
-RUN apt-get update && apt-get install -y build-essential curl gcc g++ libffi-dev libgcc-s1 && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add --no-cache build-base curl gcc g++ libffi-dev
 
 # Instalar Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
