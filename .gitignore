@@ -3,7 +3,6 @@
 .env.*
 api/.env
 backend/.env
-backend/credentials.json
 
 # Diretórios de IDEs
 # Configurações específicas do ambiente de desenvolvimento local.

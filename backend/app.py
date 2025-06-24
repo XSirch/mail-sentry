@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import requests
 import os
+import time
 
 class Categorizador:
     def __init__(self, servidor, usuario, senha):
@@ -62,25 +63,45 @@ class Categorizador:
                             "assunto": assunto,
                             "corpo": texto
                         }
-                        response = requests.post(api_url, json=payload)
-                        if response.status_code == 200:
-                            categoria = response.json()["categoria"]
-                            print(f"Categoria: {categoria}")
-                            if categoria == "LIXO":
-                                try:
-                                    imbox.mark_seen(uid)
-                                    imbox.delete(uid)
-                                    print("E-mail marcado como lido e excluído.")
-                                    # mostra quantos emails restam
-                                    print(f"Restam {len(imbox.messages(unread=True))} emails para processar.")
-                                except Exception as e:
-                                    print(f"Erro ao marcar como lido e excluir: {e}")                         
-                        else:
-                            print(f"Erro ao categorizar: {response.text}")
+                        response = self.enviar_para_api(payload)
+                        categoria = response.get("categoria", "DESCONHECIDO")
+                        print(f"Categoria: {categoria}")
+
+                        if categoria == "LIXO":
+                            try:
+                                imbox.mark_seen(uid)
+                                imbox.delete(uid)
+                                print("E-mail marcado como lido e excluído.")
+                                # mostra quantos emails restam
+                                print(f"Restam {len(imbox.messages(unread=True))} emails para processar.")
+                            except Exception as e:
+                                print(f"Erro ao marcar como lido e excluir: {e}")
                     except Exception as e:
                         print(f"Erro ao processar mensagem: {e}")
             return                
         except Exception as e:
             print(f"Erro ao conectar ao servidor: {e}")
             return False
+
+    def enviar_para_api(self, email_data):
+        max_retries = 3
+        retry_delay = 3  # segundos
+        
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(
+                    os.getenv("API_URL", "http://api:8000/categorize"),
+                    json=email_data,
+                    timeout=10
+                )
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as e:
+                print(f"Tentativa {attempt+1}/{max_retries} falhou: {e}")
+                if attempt < max_retries - 1:
+                    print(f"Tentando novamente em {retry_delay} segundos...")
+                    time.sleep(retry_delay)
+                else:
+                    print("API indisponível após várias tentativas. Continuando processamento...")
+                    return {"categoria": "DESCONHECIDO", "confianca": 0}
         
