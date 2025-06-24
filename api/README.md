@@ -224,5 +224,4 @@ Para contribuir com este projeto:
 ## Contato
 
 Para questões ou suporte, entre em contato com:
-- Email: seu-email@exemplo.com
 - GitHub: [XSirch](https://github.com/XSirch)

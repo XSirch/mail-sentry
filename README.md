@@ -185,7 +185,6 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 ## 📬 Contato
 
 - **Desenvolvedor**: [XSirch](https://github.com/XSirch)
-- **E-mail**: seu-email@exemplo.com
 - **Projeto**: [GitHub Repository](https://github.com/XSirch/mail-sentry)
 
 ---
