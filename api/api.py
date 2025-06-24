@@ -13,22 +13,27 @@ app = FastAPI(
     title="Crew AI Email Categorization API",
     description="API categorização de e-mails com Crew AI",
     version="0.1.0",
+    docs_url=None,
     debug=settings.debug
 )
+BASE_DIR = os.path.dirname(__file__)
 # Configuração para servir arquivos estáticos (CSS, JS)
 try:
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-    templates = Jinja2Templates(directory="templates")
-except:
+    app.mount(
+        "/static",
+        StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+        name="static"
+    )
+    print(f"Diretório de arquivos estáticos montado: {os.path.join(BASE_DIR, 'static')}")
+except Exception as e:
+    print(f"Erro ao montar diretório de arquivos estáticos: {e}")
     # Criar diretórios se não existirem
-    os.makedirs("static", exist_ok=True)
-    os.makedirs("templates", exist_ok=True)
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-    templates = Jinja2Templates(directory="templates")
-
+os.makedirs("static", exist_ok=True)
+os.makedirs("templates", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 llm = crewai.LLM("gpt-4.1-nano", temperature=0.2, api_key=os.environ["OPENAI_API_KEY"])
-
 
 class EmailPayload(BaseModel):
     de: str = Field(..., description="Endereço do remetente")
@@ -227,3 +232,19 @@ async def custom_swagger_ui_html():
         swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
         swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
     )
+
+@app.get("/debug/static", include_in_schema=False)
+async def debug_static():
+    """Endpoint para depuração do diretório estático"""
+    static_dir = os.path.join(BASE_DIR, "static")
+    try:
+        files = os.listdir(static_dir)
+        return {
+            "static_dir": static_dir,
+            "exists": os.path.exists(static_dir),
+            "is_dir": os.path.isdir(static_dir),
+            "files": files,
+            "styles_exists": "styles.css" in files
+        }
+    except Exception as e:
+        return {"error": str(e)}

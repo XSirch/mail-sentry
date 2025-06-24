@@ -18,8 +18,13 @@ COPY requirements.txt .
 # Instalar dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar o código da aplicação
+# Copiar código-fonte e arquivos estáticos
 COPY . .
+
+# Garantir que os diretórios existam e tenham permissões corretas
+RUN mkdir -p /app/static && \
+    mkdir -p /app/templates && \
+    chmod -R 755 /app/static /app/templates
 
 # Mudar para o usuário não-privilegiado para execução
 # (mas não durante a construção, pois precisamos de permissões de root)
