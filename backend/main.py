@@ -18,9 +18,10 @@ class Start:
         except Exception as e:
             print(f"Erro ao conectar ao Google: {e}")
 
-
-
 if __name__ == "__main__":
+    Start.yahoo()
+    print("Yahoo terminou")
     Start.google()
     print("Google terminou")
+
     

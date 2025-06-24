@@ -56,7 +56,6 @@ class Categorizador:
                         print("="*80 + "\n")
 
                         # 4) Envia para a API de categorização
-                        api_url = os.environ["API_URL"]
                         payload = {
                             "de": de,
                             "para": para,
@@ -76,9 +75,27 @@ class Categorizador:
                                 print(f"Restam {len(imbox.messages(unread=True))} emails para processar.")
                             except Exception as e:
                                 print(f"Erro ao marcar como lido e excluir: {e}")
+                        if categoria == "COMUM":
+                            try:
+                                imbox.mark_seen(uid)
+                                print("E-mail marcado como lido.")
+                                # mostra quantos emails restam
+                                print(f"Restam {len(imbox.messages(unread=True))} emails para processar.")
+                            except Exception as e:
+                                print(f"Erro ao marcar como lido: {e}")
+                        if categoria == "IMPORTANTE":
+                            try:
+                                self.mover_email(uid, categoria)
+                            except Exception as e:
+                                print(f"Erro ao mover para pasta {categoria}: {e}")
+                        if categoria == "URGENTE":
+                            try:
+                                self.mover_email(uid, categoria)
+                            except Exception as e:
+                                print(f"Erro ao mover para pasta {categoria}: {e}")
                     except Exception as e:
                         print(f"Erro ao processar mensagem: {e}")
-            return                
+            return  categoria          
         except Exception as e:
             print(f"Erro ao conectar ao servidor: {e}")
             return False
@@ -105,3 +122,31 @@ class Categorizador:
                     print("API indisponível após várias tentativas. Continuando processamento...")
                     return {"categoria": "DESCONHECIDO", "confianca": 0}
         
+    def mover_email(self,uid, categoria):
+        import imaplib
+        # 1) Abre conexão IMAP
+        imap = imaplib.IMAP4_SSL(self.servidor, 993)
+        imap.login(self.usuario, self.senha)
+
+        # 2) Seleciona a pasta INBOX
+        imap.select("INBOX")
+
+        # 5) Garanta que a pasta exista
+        destino = categoria.capitalize()  # "Urgente", "Importante" etc.
+        imap.create(destino)              # silencia erro se já existir
+
+        # 6) Move a mensagem
+        # Alguns servidores suportam o comando MOVE direto:
+        try:
+            imap.uid("MOVE", uid, destino)
+        except imaplib.IMAP4.error:
+            # fallback: COPY + STORE + EXPUNGE
+            imap.uid("COPY", uid, destino)
+            imap.uid("STORE", uid, "+FLAGS", r"(\Deleted)")
+            imap.expunge()
+
+        print(f"UID {uid.decode()} movido para {destino}")
+
+        # 7) Logout
+        imap.close()
+        imap.logout()
