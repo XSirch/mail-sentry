@@ -1,5 +1,8 @@
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from config import settings
 import crewai
@@ -12,6 +15,18 @@ app = FastAPI(
     version="0.1.0",
     debug=settings.debug
 )
+# Configuração para servir arquivos estáticos (CSS, JS)
+try:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    templates = Jinja2Templates(directory="templates")
+except:
+    # Criar diretórios se não existirem
+    os.makedirs("static", exist_ok=True)
+    os.makedirs("templates", exist_ok=True)
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    templates = Jinja2Templates(directory="templates")
+
+
 llm = crewai.LLM("gpt-4.1-nano", temperature=0.2, api_key=os.environ["OPENAI_API_KEY"])
 
 
@@ -51,6 +66,7 @@ Você desenvolveu um sistema preciso para categorizar e-mails em quatro categori
    - Assuntos relacionados a projetos, reuniões ou tarefas significativas
    - Conteúdo contém informações relevantes para o trabalho
    - Prazos mais longos ou sem urgência explícita
+   - Vagas de emprego
 
 3. COMUM: E-mails rotineiros sem prioridade especial. Características:
    - Comunicações do dia-a-dia
@@ -185,3 +201,29 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.get("/docs", response_class=HTMLResponse)
+async def custom_docs(request: Request):
+    """
+    Documentação personalizada da API de Categorização de E-mails.
+    """
+    return templates.TemplateResponse(
+        "docs.html", 
+        {
+            "request": request,
+            "api_title": "API de Categorização de E-mails",
+            "api_version": "0.1.0",
+            "base_url": str(request.base_url).rstrip("/")
+        }
+    )
+# Redirecionar a documentação padrão do Swagger para /swagger
+from fastapi.openapi.docs import get_swagger_ui_html
+
+@app.get("/swagger", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Swagger UI",
+        swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
+        swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
+    )

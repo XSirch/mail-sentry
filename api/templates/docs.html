@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ api_title }} - Documentação</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>{{ api_title }}</h1>
+            <p class="version">Versão {{ api_version }}</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Visão Geral</h2>
+            <p>Esta API fornece um serviço de categorização de e-mails utilizando inteligência artificial. O sistema analisa e-mails recebidos e os categoriza automaticamente com base em seu conteúdo, remetente e outros metadados, permitindo uma gestão mais eficiente da comunicação por e-mail.</p>
+            <p>A API utiliza o framework CrewAI para orquestrar agentes de IA que analisam o conteúdo dos e-mails e determinam sua categoria com base em critérios específicos.</p>
+        </section>
+
+        <section id="endpoints">
+            <h2>Endpoints Disponíveis</h2>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="path">/categorize</span>
+                </div>
+                <div class="endpoint-content">
+                    <p>Categoriza um e-mail com base em seu conteúdo, remetente e outros metadados.</p>
+                    
+                    <h3>Request</h3>
+                    <p>O corpo da requisição deve conter os seguintes campos:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Obrigatório</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>de</td>
+                                <td>string</td>
+                                <td>Endereço de e-mail do remetente</td>
+                                <td>Sim</td>
+                            </tr>
+                            <tr>
+                                <td>para</td>
+                                <td>string</td>
+                                <td>Endereço de e-mail do destinatário</td>
+                                <td>Sim</td>
+                            </tr>
+                            <tr>
+                                <td>assunto</td>
+                                <td>string</td>
+                                <td>Assunto do e-mail</td>
+                                <td>Sim</td>
+                            </tr>
+                            <tr>
+                                <td>corpo</td>
+                                <td>string</td>
+                                <td>Conteúdo do e-mail (texto)</td>
+                                <td>Sim</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Exemplo de Request</h4>
+                    <pre><code class="language-json">{
+  "de": "cliente@empresa.com",
+  "para": "suporte@minhaempresa.com",
+  "assunto": "Problema com faturamento",
+  "corpo": "Olá, estou com dificuldades para acessar minha fatura deste mês. Preciso dela com urgência para apresentar ao departamento financeiro. Poderiam me ajudar?"
+}</code></pre>
+
+                    <h3>Response</h3>
+                    <p>A resposta contém a categoria atribuída ao e-mail:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>categoria</td>
+                                <td>string</td>
+                                <td>Categoria atribuída ao e-mail (URGENTE, IMPORTANTE, COMUM ou LIXO)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Exemplo de Response</h4>
+                    <pre><code class="language-json">{
+  "categoria": "IMPORTANTE"
+}</code></pre>
+
+                    <h3>Códigos de Status</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>200</td>
+                                <td>Sucesso. O e-mail foi categorizado corretamente.</td>
+                            </tr>
+                            <tr>
+                                <td>400</td>
+                                <td>Bad Request. O corpo da requisição é inválido ou não pôde ser processado.</td>
+                            </tr>
+                            <tr>
+                                <td>422</td>
+                                <td>Unprocessable Entity. Os dados fornecidos são inválidos ou incompletos.</td>
+                            </tr>
+                            <tr>
+                                <td>500</td>
+                                <td>Internal Server Error. Ocorreu um erro no servidor durante o processamento.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="path">/health</span>
+                </div>
+                <div class="endpoint-content">
+                    <p>Verifica o status de saúde da API.</p>
+                    
+                    <h3>Response</h3>
+                    <pre><code class="language-json">{
+  "status": "healthy"
+}</code></pre>
+
+                    <h3>Códigos de Status</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>200</td>
+                                <td>Sucesso. A API está funcionando corretamente.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="categories">
+            <h2>Categorias Suportadas</h2>
+            <p>A API categoriza os e-mails em quatro categorias distintas:</p>
+            
+            <div class="category">
+                <h3>URGENTE</h3>
+                <p>E-mails que exigem atenção imediata. Características:</p>
+                <ul>
+                    <li>Contém palavras como "URGENTE", "EMERGÊNCIA", "IMEDIATO" no assunto</li>
+                    <li>Remetentes são pessoas importantes (chefes, clientes VIP)</li>
+                    <li>Conteúdo indica prazos iminentes ou situações críticas</li>
+                    <li>Solicitações explícitas de resposta rápida</li>
+                </ul>
+            </div>
+            
+            <div class="category">
+                <h3>IMPORTANTE</h3>
+                <p>E-mails que são relevantes mas não críticos. Características:</p>
+                <ul>
+                    <li>Remetentes são colegas de trabalho, parceiros de negócios</li>
+                    <li>Assuntos relacionados a projetos, reuniões ou tarefas significativas</li>
+                    <li>Conteúdo contém informações relevantes para o trabalho</li>
+                    <li>Prazos mais longos ou sem urgência explícita</li>
+                    <li>Vagas de emprego</li>
+                </ul>
+            </div>
+            
+            <div class="category">
+                <h3>COMUM</h3>
+                <p>E-mails rotineiros sem prioridade especial. Características:</p>
+                <ul>
+                    <li>Comunicações do dia-a-dia</li>
+                    <li>Atualizações gerais</li>
+                    <li>Informações que não exigem ação imediata</li>
+                    <li>Newsletters relevantes</li>
+                </ul>
+            </div>
+            
+            <div class="category">
+                <h3>LIXO</h3>
+                <p>E-mails indesejados ou de baixa relevância. Características:</p>
+                <ul>
+                    <li>Marketing em massa</li>
+                    <li>Promoções não solicitadas</li>
+                    <li>Remetentes desconhecidos com conteúdo genérico</li>
+                    <li>Assuntos com excesso de pontuação ou CAPS LOCK</li>
+                    <li>Conteúdo irrelevante para o destinatário</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="examples">
+            <h2>Exemplos Práticos</h2>
+            
+            <h3>Exemplo com cURL</h3>
+            <pre><code class="language-bash">curl -X 'POST' \
+  '{{ base_url }}/categorize' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "de": "cliente@empresa.com",
+  "para": "suporte@minhaempresa.com",
+  "assunto": "Problema com faturamento",
+  "corpo": "Olá, estou com dificuldades para acessar minha fatura deste mês. Preciso dela com urgência para apresentar ao departamento financeiro. Poderiam me ajudar?"
+}'</code></pre>
+
+            <h3>Exemplo com Python</h3>
+            <pre><code class="language-python">import requests
+import json
+
+url = "{{ base_url }}/categorize"
+
+payload = {
+    "de": "cliente@empresa.com",
+    "para": "suporte@minhaempresa.com",
+    "assunto": "Problema com faturamento",
+    "corpo": "Olá, estou com dificuldades para acessar minha fatura deste mês. Preciso dela com urgência para apresentar ao departamento financeiro. Poderiam me ajudar?"
+}
+
+headers = {
+    "Content-Type": "application/json"
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+
+print(response.status_code)
+print(response.json())</code></pre>
+        </section>
+
+        <section id="error-handling">
+            <h2>Tratamento de Erros</h2>
+            <p>A API pode retornar os seguintes erros:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Possíveis Causas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>400</td>
+                        <td>Bad Request</td>
+                        <td>
+                            <ul>
+                                <li>JSON inválido no corpo da requisição</li>
+                                <li>Formato de dados incorreto</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>422</td>
+                        <td>Unprocessable Entity</td>
+                        <td>
+                            <ul>
+                                <li>Campos obrigatórios ausentes</li>
+                                <li>Tipos de dados incorretos</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>500</td>
+                        <td>Internal Server Error</td>
+                        <td>
+                            <ul>
+                                <li>Erro no serviço de IA</li>
+                                <li>Problema com a chave da API OpenAI</li>
+                                <li>Erro interno no servidor</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Exemplo de Resposta de Erro</h3>
+            <pre><code class="language-json">{
+  "detail": "Campo obrigatório 'corpo' ausente na requisição"
+}</code></pre>
+        </section>
+
+        <section id="interactive">
+            <h2>Teste Interativo</h2>
+            <div class="interactive-form">
+                <h3>Categorizar E-mail</h3>
+                <form id="categorize-form">
+                    <div class="form-group">
+                        <label for="de">De:</label>
+                        <input type="email" id="de" name="de" required placeholder="remetente@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="para">Para:</label>
+                        <input type="email" id="para" name="para" required placeholder="destinatario@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="assunto">Assunto:</label>
+                        <input type="text" id="assunto" name="assunto" required placeholder="Assunto do e-mail">
+                    </div>
+                    <div class="form-group">
+                        <label for="corpo">Corpo:</label>
+                        <textarea id="corpo" name="corpo" required placeholder="Conteúdo do e-mail..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Categorizar</button>
+                </form>
+                
+                <div id="response-container" class="hidden">
+                    <h3>Resposta</h3>
+                    <pre><code id="response-code" class="language-json"></code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="rate-limiting">
+            <h2>Rate Limiting</h2>
+            <p>Para garantir a estabilidade e disponibilidade do serviço, a API implementa os seguintes limites de uso:</p>
+            <ul>
+                <li>Máximo de <strong>60 requisições por minuto</strong> por endereço IP</li>
+                <li>Máximo de <strong>1000 requisições por dia</strong> por endereço IP</li>
+            </ul>
+            <p>Se você exceder esses limites, receberá um erro <code>429 Too Many Requests</code> com um cabeçalho <code>Retry-After</code> indicando quantos segundos você deve esperar antes de fazer uma nova requisição.</p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Mail Sentry. Todos os direitos reservados.</p>
+            <p>
+                <a href="/swagger">Documentação Swagger</a> | 
+                <a href="https://github.com/XSirch/mail-sentry">GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('categorize-form');
+            const responseContainer = document.getElementById('response-container');
+            const responseCode = document.getElementById('response-code');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    de: document.getElementById('de').value,
+                    para: document.getElementById('para').value,
+                    assunto: document.getElementById('assunto').value,
+                    corpo: document.getElementById('corpo').value
+                };
+
+                try {
+                    const response = await fetch('{{ base_url }}/categorize', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const data = await response.json();
+                    
+                    responseCode.textContent = JSON.stringify(data, null, 2);
+                    responseContainer.classList.remove('hidden');
+                    
+                    // Reaplica o highlight
+                    hljs.highlightElement(responseCode);
+                } catch (error) {
+                    responseCode.textContent = JSON.stringify({
+                        error: 'Erro ao processar a requisição',
+                        message: error.message
+                    }, null, 2);
+                    responseContainer.classList.remove('hidden');
+                    
+                    // Reaplica o highlight
+                    hljs.highlightElement(responseCode);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

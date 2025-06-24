@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mail-categorizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mail-categorizer-backend
+    restart: unless-stopped
+    environment:
+      # Email credentials (set these in your .env file or environment)
+      - YAHOO_USER=${YAHOO_USER}
+      - YAHOO_PASS=${YAHOO_PASS}
+      - GOOGLE_USER=${GOOGLE_USER}
+      - GOOGLE_PASS=${GOOGLE_PASS}
+      - API_URL=${API_URL}
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+    networks:
+      - mail-sentry-network
+    depends_on:
+      - api
+    # Run every hour (adjust as needed)
+    command: >
+      sh -c "
+        while true; do
+          echo 'Starting email categorization...'
+          python main.py
+          echo 'Email categorization completed. Waiting 1 hour...'
+          sleep 3600
+        done
+      "
+
+  api:
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    container_name: mail-categorizer-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - mail-sentry-network
+    environment:
+      - API_PORT=8000
+
+networks:
+  mail-sentry-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

@@ -2,12 +2,19 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    environment: str = os.getenv("ENVIRONMENT", "development")
-    debug: bool = environment == "development"
+    debug: bool = os.environ.get("DEBUG", "False").lower() in ("true", "1", "t")
+    environment: str = os.environ.get("ENVIRONMENT", "production")
+    openai_api_key: str = os.environ.get("OPENAI_API_KEY", "")
     
-    # Adicione outras configurações específicas aqui
-    # Por exemplo, URLs de serviços externos, etc.
+    # Configurações de documentação
+    docs_title: str = "API de Categorização de E-mails"
+    docs_description: str = "API para categorização automática de e-mails usando inteligência artificial"
+    docs_version: str = "0.1.0"
     
+    # Configurações de rate limiting
+    rate_limit_per_minute: int = 60
+    rate_limit_per_day: int = 1000
+
     class Config:
         env_file = ".env"
 
