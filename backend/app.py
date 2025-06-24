@@ -42,7 +42,6 @@ class Categorizador:
                         texto = soup.get_text(separator="\n").strip()
                         lines = [line.strip() for line in texto.splitlines()]
                         texto = "\n".join(lines)
-                        # 3.2 — colapsa 2+ blank lines para no máximo 1
                         texto = re.sub(r'\n{2,}', '\n\n', texto).strip()
 
                         # 3) Impressão formatada
@@ -131,12 +130,11 @@ class Categorizador:
         # 2) Seleciona a pasta INBOX
         imap.select("INBOX")
 
-        # 5) Garanta que a pasta exista
+        # 3) Garanta que a pasta exista
         destino = categoria.capitalize()  # "Urgente", "Importante" etc.
         imap.create(destino)              # silencia erro se já existir
 
-        # 6) Move a mensagem
-        # Alguns servidores suportam o comando MOVE direto:
+        # 4) Move a mensagem
         try:
             imap.uid("MOVE", uid, destino)
         except imaplib.IMAP4.error:
